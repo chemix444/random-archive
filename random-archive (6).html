@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Stacks — a random pull from the Internet Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4ece0;
+    --ink: #1c1812;
+    --ink-soft: #4a4135;
+    --rust: #b8462e;
+    --gold: #c08a2e;
+    --line: #d8cbb6;
+    --card: #fbf6ec;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Spline Sans Mono', monospace;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(192,138,46,.06), transparent 40%),
+      radial-gradient(circle at 88% 82%, rgba(184,70,46,.05), transparent 40%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4vw 5vw 6vw;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    opacity: .04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  header { text-align: center; margin-bottom: 2.2rem; max-width: 720px; }
+  .eyebrow { font-size: .72rem; letter-spacing: .42em; text-transform: uppercase; color: var(--rust); margin-bottom: 1.4rem; }
+  h1 { font-family: 'Fraunces', serif; font-weight: 900; font-size: clamp(2.6rem, 8vw, 5.2rem); line-height: .94; letter-spacing: -.02em; }
+  h1 em { font-style: italic; font-weight: 500; color: var(--rust); }
+  .sub { margin-top: 1.3rem; font-size: .92rem; color: var(--ink-soft); line-height: 1.6; }
+
+  .controls {
+    width: 100%; max-width: 680px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 3px;
+    padding: 1.4rem 1.5rem; margin-bottom: 1.6rem;
+    display: flex; flex-direction: column; gap: 1.1rem;
+  }
+  .ctl-row { display: flex; flex-wrap: wrap; gap: 1rem 1.4rem; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: .45rem; flex: 1 1 200px; }
+  .field label { font-size: .66rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+  .field select, .field input[type=number] {
+    font-family: 'Spline Sans Mono', monospace; font-size: .85rem;
+    background: var(--paper); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 2px; padding: .6rem .7rem;
+    width: 100%;
+  }
+  .field select:focus, .field input:focus { outline: none; border-color: var(--rust); }
+  .field input:disabled, .field select:disabled { opacity: .45; cursor: not-allowed; }
+
+  .toggle { display: flex; align-items: center; gap: .7rem; cursor: pointer; font-size: .8rem; color: var(--ink); user-select: none; }
+  .toggle input { display: none; }
+  .switch { width: 42px; height: 23px; border-radius: 20px; background: var(--line); position: relative; transition: background .18s; flex-shrink: 0; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%; background: var(--paper); transition: transform .18s; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+  .toggle input:checked + .switch { background: var(--rust); }
+  .toggle input:checked + .switch::after { transform: translateX(19px); }
+  .toggle .hint { color: var(--ink-soft); font-size: .72rem; }
+
+  .pull-btn {
+    margin: .2rem 0 2.6rem; background: var(--ink); color: var(--paper); border: none;
+    font-family: 'Spline Sans Mono', monospace; font-weight: 600; font-size: 1rem;
+    letter-spacing: .04em; padding: 1.15rem 2.6rem; border-radius: 2px; cursor: pointer;
+    position: relative; box-shadow: 5px 5px 0 var(--rust);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .pull-btn:hover:not(:disabled) { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--rust); }
+  .pull-btn:active:not(:disabled) { transform: translate(3px,3px); box-shadow: 1px 1px 0 var(--rust); }
+  .pull-btn:disabled { opacity: .55; cursor: wait; }
+
+  .stage { width: 100%; max-width: 680px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 3px; padding: 2rem 2rem 2.2rem; box-shadow: 0 18px 40px -28px rgba(28,24,18,.5); animation: rise .45s cubic-bezier(.2,.7,.2,1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .card .tag { display: inline-block; font-size: .66rem; letter-spacing: .25em; text-transform: uppercase; color: var(--gold); border: 1px solid var(--line); padding: .35rem .7rem; border-radius: 2px; margin-bottom: 1.2rem; }
+  .card h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.7rem; line-height: 1.15; margin-bottom: .6rem; }
+  .card .meta { font-size: .8rem; color: var(--ink-soft); margin-bottom: 1.4rem; line-height: 1.6; }
+  .card .desc { font-size: .85rem; color: var(--ink-soft); line-height: 1.65; max-height: 7.5rem; overflow: hidden; margin-bottom: 1.6rem; border-left: 2px solid var(--line); padding-left: 1rem; }
+  .links { display: flex; flex-wrap: wrap; gap: .7rem; }
+  .links a { text-decoration: none; font-size: .8rem; font-weight: 600; letter-spacing: .03em; padding: .7rem 1.2rem; border-radius: 2px; transition: background .15s, color .15s; }
+  .links a.primary { background: var(--rust); color: var(--paper); }
+  .links a.primary:hover { background: #9c391f; }
+  .filelist { margin-top: 1.5rem; border-top: 1px dashed var(--line); padding-top: 1.1rem; }
+  .filelist h3 { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: .8rem; }
+  .filelist ul { list-style: none; display: flex; flex-direction: column; gap: .4rem; }
+  .filelist li a { display: flex; justify-content: space-between; gap: 1rem; text-decoration: none; color: var(--ink); font-size: .78rem; padding: .5rem .7rem; border-radius: 2px; background: var(--paper); border: 1px solid var(--line); }
+  .filelist li a:hover { border-color: var(--rust); color: var(--rust); }
+  .filelist li a span:last-child { color: var(--ink-soft); white-space: nowrap; }
+  .placeholder, .err { text-align: center; color: var(--ink-soft); font-size: .85rem; line-height: 1.7; padding: 2.5rem 1rem; border: 1px dashed var(--line); border-radius: 3px; }
+  .err { color: var(--rust); border-color: var(--rust); }
+  .spinner { width: 26px; height: 26px; margin: 0 auto 1rem; border: 2px solid var(--line); border-top-color: var(--rust); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .status { font-size: .72rem; color: var(--ink-soft); margin-top: .6rem; }
+  footer { margin-top: 3rem; font-size: .68rem; color: var(--ink-soft); letter-spacing: .05em; text-align: center; max-width: 560px; line-height: 1.7; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">est. forever · the internet archive</div>
+    <h1>The <em>Stacks</em></h1>
+    <p class="sub">pull a lever, get a random item out of the archive's millions of books, films, recordings, software, and oddities. nothing downloads on its own — you see what it is first, then grab it if you want it.</p>
+  </header>
+
+  <div class="controls">
+    <div class="ctl-row">
+      <div class="field">
+        <label for="type">media type</label>
+        <select id="type">
+          <option value="">anything</option>
+          <option value="texts">texts &amp; books</option>
+          <option value="movies">movies &amp; video</option>
+          <option value="audio">audio &amp; music</option>
+          <option value="image">images</option>
+          <option value="software">software</option>
+          <option value="web">web (wayback)</option>
+          <option value="data">data</option>
+          <option value="collection">collections</option>
+        </select>
+      </div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="entire">
+      <span class="switch"></span>
+      <span>search the entire archive <span class="hint">(uses the scrape API to reach a random deep spot, beyond the 10k-result page limit)</span></span>
+    </label>
+  </div>
+
+  <button class="pull-btn" id="pull">↯ pull a random item</button>
+
+  <div class="stage">
+    <div id="result">
+      <div class="placeholder">the shelves are quiet. set your filters and hit the lever.</div>
+    </div>
+  </div>
+
+  <footer>
+    items come straight from archive.org via its official search and scrape APIs. some files are large and some are copyrighted, and the "anything" / software pools include executables and disk images — you choose what to open or download. nothing is fetched to your device until you click a file link.
+  </footer>
+
+<script>
+const btn = document.getElementById('pull');
+const result = document.getElementById('result');
+const typeSel = document.getElementById('type');
+const entireToggle = document.getElementById('entire');
+
+const ROWS = 50;            // results per page in normal mode
+const MAX_START = 9900;     // hard ceiling: advancedsearch rejects start beyond ~10000
+const SCRAPE_COUNT = 100;   // scrape API minimum batch size
+const MAX_PAGES = 198;      // top pages to randomize across in normal mode (10k / 50 rows)
+const MAX_HOPS = 200;       // max cursor hops in entire-archive mode
+
+// pool of varied sites for "web" mode. the Wayback CDX index blocks browser
+// requests (no CORS), so we randomize over this curated list + a random
+// timestamp and ask the availability API for the closest capture.
+const WEB_POOL = [
+  'apple.com','microsoft.com','nasa.gov','yahoo.com','geocities.com','aol.com',
+  'amazon.com','ebay.com','google.com','cnn.com','bbc.co.uk','nytimes.com',
+  'wikipedia.org','netscape.com','altavista.com','askjeeves.com','myspace.com',
+  'napster.com','wired.com','slashdot.org','imdb.com','craigslist.org',
+  'whitehouse.gov','espn.com','disney.com','nintendo.com','sega.com','sony.com',
+  'mtv.com','playboy.com','nokia.com','blockbuster.com','kodak.com','intel.com',
+  'ibm.com','sun.com','adobe.com','macromedia.com','realnetworks.com','aol.co.uk',
+  'lycos.com','excite.com','hotbot.com','webcrawler.com','infoseek.com','dmoz.org',
+  'angelfire.com','tripod.com','xanga.com','livejournal.com','friendster.com',
+  'digg.com','delicious.com','flickr.com','photobucket.com','newgrounds.com',
+  'homestarrunner.com','ebaumsworld.com','albinoblacksheep.com','fark.com',
+  'theonion.com','drudgereport.com','salon.com','about.com','encarta.msn.com',
+  'compuserve.com','prodigy.net','earthlink.net','juno.com','winamp.com',
+  'limewire.com','kazaa.com','gamespot.com','ign.com','gamefaqs.com','3dfx.com'
+];
+
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtBytes(n){ n=+n; if(!n||isNaN(n)) return ''; const u=['B','KB','MB','GB']; let i=0; while(n>=1024&&i<u.length-1){n/=1024;i++;} return n.toFixed(n<10&&i>0?1:0)+' '+u[i]; }
+
+function setStatus(msg){
+  const s = document.querySelector('#result .status');
+  if(s) s.textContent = msg;
+}
+
+// the "entire archive" toggle is irrelevant in web mode
+typeSel.addEventListener('change', () => {
+  const isWeb = typeSel.value === 'web';
+  entireToggle.disabled = isWeb;
+  entireToggle.closest('.toggle').style.opacity = isWeb ? '.4' : '1';
+});
+
+async function fetchJSON(url, tries){
+  tries = tries || 3;
+  let lastErr;
+  for(let i=0;i<tries;i++){
+    try {
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('server returned '+res.status);
+      return await res.json();
+    } catch(e){
+      lastErr = e;
+      await new Promise(r => setTimeout(r, 400*(i+1)));
+    }
+  }
+  throw lastErr;
+}
+
+function buildQuery(){
+  const t = typeSel.value;
+  return t ? 'mediatype:'+t : 'identifier:*';
+}
+
+// NORMAL MODE: random page within the 10k-result window
+async function pullNormal(){
+  const q = buildQuery();
+  const maxPage = Math.min(MAX_PAGES, Math.floor(MAX_START / ROWS)); // stay inside the 10k window
+  const page = Math.floor(Math.random()*maxPage) + 1;
+  setStatus('searching page '+page+'…');
+  const url = 'https://archive.org/advancedsearch.php?q='+encodeURIComponent(q)+
+              '&fl[]=identifier&rows='+ROWS+'&page='+page+'&output=json';
+  const data = await fetchJSON(url);
+  const docs = data?.response?.docs;
+  if(!docs || !docs.length) throw new Error('that shelf came back empty — try another type');
+  return docs[Math.floor(Math.random()*docs.length)].identifier;
+}
+
+// ENTIRE-ARCHIVE MODE: walk the scrape API cursor a random number of hops, then pick from the batch
+async function pullEntire(){
+  const q = buildQuery();
+  const hops = Math.floor(Math.random() * MAX_HOPS);
+  const base = 'https://archive.org/services/search/v1/scrape?fields=identifier&count='+SCRAPE_COUNT+'&q='+encodeURIComponent(q);
+  let cursor = null;
+  let items = [];
+  for(let i=0;i<=hops;i++){
+    setStatus('digging through the archive… cursor hop '+(i+1)+' of '+(hops+1));
+    const url = base + (cursor ? '&cursor='+encodeURIComponent(cursor) : '');
+    const data = await fetchJSON(url);
+    items = data.items || [];
+    cursor = data.cursor || null;
+    if(!cursor) break; // reached the end; use whatever this batch holds
+  }
+  if(!items.length) throw new Error('the scrape came back empty — try again');
+  return items[Math.floor(Math.random()*items.length)].identifier;
+}
+
+// WEB MODE: random archived website at a random point in time.
+// picks a random domain + random timestamp (1996–now), asks the availability
+// API for the closest capture, retrying with new picks until one lands.
+async function pullWebpage(){
+  const start = new Date('1996-10-01').getTime();
+  const end = Date.now();
+  for(let attempt=0; attempt<8; attempt++){
+    const domain = WEB_POOL[Math.floor(Math.random()*WEB_POOL.length)];
+    const t = new Date(start + Math.random()*(end-start));
+    const ts = t.getFullYear().toString() +
+               String(t.getMonth()+1).padStart(2,'0') +
+               String(t.getDate()).padStart(2,'0');
+    setStatus('reaching back to '+t.getFullYear()+' for '+domain+'…');
+    const url = 'https://archive.org/wayback/available?url='+encodeURIComponent(domain)+'&timestamp='+ts;
+    let data;
+    try { data = await fetchJSON(url, 2); } catch(e){ continue; }
+    const snap = data?.archived_snapshots?.closest;
+    if(snap && snap.available && snap.url){
+      return { domain, snap, requestedYear: t.getFullYear() };
+    }
+  }
+  throw new Error('couldn\'t land on an archived page — give it another pull');
+}
+
+async function pull(){
+  btn.disabled = true;
+  result.innerHTML = '<div class="placeholder"><div class="spinner"></div>reaching into the stacks…<div class="status"></div></div>';
+  try {
+    if(typeSel.value === 'web'){
+      const web = await pullWebpage();
+      renderWebpage(web);
+      return;
+    }
+    const id = entireToggle.checked ? await pullEntire() : await pullNormal();
+    setStatus('found "'+id+'" — loading details…');
+    const m = await fetchJSON('https://archive.org/metadata/'+encodeURIComponent(id));
+    render(id, m);
+  } catch(e){
+    result.innerHTML = '<div class="err">'+esc(e.message)+'<br><br>the archive can be flaky and rate-limits heavy use. wait a moment and pull again.</div>';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function render(id, m){
+  const meta = m.metadata || {};
+  const title = meta.title || id;
+  const creator = [].concat(meta.creator || []).join(', ');
+  const year = meta.year || meta.date || '';
+  const type = [].concat(meta.mediatype || []).join('');
+  let desc = [].concat(meta.description || []).join(' ').replace(/<[^>]+>/g,'').trim();
+
+  const detailURL = 'https://archive.org/details/'+encodeURIComponent(id);
+  const dl = m.dir && m.server ? 'https://'+m.server+m.dir+'/' : null;
+
+  const files = (m.files||[]).filter(f => f.name && f.format && !/Metadata|Thumb|__ia_thumb|files\.xml|_meta\.|\.sqlite/i.test(f.format)).slice(0, 8);
+
+  let fileHTML = '';
+  if(dl && files.length){
+    fileHTML = '<div class="filelist"><h3>files in this item</h3><ul>' +
+      files.map(f => '<li><a href="'+dl+encodeURIComponent(f.name)+'" target="_blank" rel="noopener"><span>'+esc(f.name)+'</span><span>'+esc(f.format)+(f.size?' · '+fmtBytes(f.size):'')+'</span></a></li>').join('') +
+      '</ul></div>';
+  }
+
+  result.innerHTML =
+    '<div class="card">' +
+      (type ? '<span class="tag">'+esc(type)+'</span>' : '') +
+      '<h2>'+esc(title)+'</h2>' +
+      '<div class="meta">' +
+        (creator ? esc(creator)+'<br>' : '') +
+        (year ? esc(year)+' · ' : '') + 'identifier: '+esc(id) +
+      '</div>' +
+      (desc ? '<div class="desc">'+esc(desc)+'</div>' : '') +
+      '<div class="links"><a class="primary" href="'+detailURL+'" target="_blank" rel="noopener">open on archive.org ↗</a></div>' +
+      fileHTML +
+    '</div>';
+}
+
+function renderWebpage(web){
+  const { domain, snap } = web;
+  // snapshot timestamp looks like 20010302181038 → format it nicely
+  const ts = snap.timestamp || '';
+  const y = ts.slice(0,4), mo = ts.slice(4,6), d = ts.slice(6,8), h = ts.slice(8,10), mi = ts.slice(10,12);
+  const months = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+  const when = y ? (months[+mo]||'')+' '+(+d||'')+', '+y + (h?' · '+h+':'+mi:'') : 'unknown date';
+
+  result.innerHTML =
+    '<div class="card">' +
+      '<span class="tag">archived website</span>' +
+      '<h2>'+esc(domain)+'</h2>' +
+      '<div class="meta">captured '+esc(when)+'<br>a snapshot frozen in the Wayback Machine</div>' +
+      '<div class="links">' +
+        '<a class="primary" href="'+esc(snap.url)+'" target="_blank" rel="noopener">visit this snapshot ↗</a>' +
+        '<a class="primary" style="background:var(--ink)" href="https://web.archive.org/web/'+encodeURIComponent(domain)+'" target="_blank" rel="noopener">see all captures ↗</a>' +
+      '</div>' +
+    '</div>';
+}
+
+btn.addEventListener('click', pull);
+</script>
+</body>
+</html>
